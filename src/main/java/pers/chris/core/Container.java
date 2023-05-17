@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import pers.chris.core.annotation.Bean;
 import pers.chris.core.annotation.Resource;
 import pers.chris.util.ClassUtil;
@@ -16,14 +17,15 @@ import pers.chris.util.ReflectUtil;
  */
 public class Container {
 
-    // 存储Bean对象的Map
-    private final Map<String, Object> beanMap = new HashMap<>();
+    private final Map<String, Object> beanMap;
     private final String[] packageName = {"pers.chris.sample"};
 
     public Container() {
+        beanMap = new ConcurrentHashMap<>();
         loadBean();
     }
 
+    // TODO 循环依赖
     private void loadBean() {
         Set<Class<?>> classes = ClassUtil.scanPackage(packageName);
         for (Class<?> clazz : classes) {
@@ -38,7 +40,7 @@ public class Container {
         }
     }
 
-    // 注入依赖
+    // TODO 范型注入
     private void injectBean(Object bean) {
         Class<?> clazz = bean.getClass();
         Field[] fields = ReflectUtil.getFields(clazz, true);
@@ -58,9 +60,7 @@ public class Container {
         }
     }
 
-    // 获取Bean对象
     public Object getBean(String name) {
-        Object o = beanMap.get(name);
         return beanMap.get(name);
     }
 }
