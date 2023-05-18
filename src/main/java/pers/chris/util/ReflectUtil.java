@@ -24,6 +24,15 @@ public class ReflectUtil {
         }
     }
 
+    public static void setField(Object object, Field field, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(object, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         Field field = searchField(clazz, fieldName);
         if (field == null) {

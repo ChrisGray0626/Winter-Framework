@@ -16,7 +16,7 @@ import pers.chris.core.annotation.Resource;
 public class Application extends BaseApplication {
 
     @Resource
-    private Controller controller;
+    private UserController userController;
 
     public static void main(String[] args) {
         new ApplicationExecutor().source(Application.class).run();
@@ -24,6 +24,6 @@ public class Application extends BaseApplication {
 
     @Override
     public void run() {
-        controller.doSomething();
+        userController.print();
     }
 }

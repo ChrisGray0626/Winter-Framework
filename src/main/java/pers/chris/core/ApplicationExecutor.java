@@ -1,8 +1,9 @@
 package pers.chris.core;
 
+import pers.chris.util.ReflectUtil;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import pers.chris.util.ReflectUtil;
 
 /**
  * @Description
@@ -12,11 +13,11 @@ import pers.chris.util.ReflectUtil;
 public class ApplicationExecutor {
 
     private static final String RUN_METHOD_NAME = "run";
-    private Container container;
+    private ApplicationContainer applicationContainer;
     private Class<? extends BaseApplication>[] sources;
 
     public ApplicationExecutor() {
-        container = new Container();
+        applicationContainer = new ApplicationContainer();
     }
 
     @SafeVarargs
@@ -34,7 +35,7 @@ public class ApplicationExecutor {
                 throw new RuntimeException(e);
             }
             try {
-                method.invoke(container.getBean(source.getName()));
+                method.invoke(applicationContainer.getBean(source.getName()));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }

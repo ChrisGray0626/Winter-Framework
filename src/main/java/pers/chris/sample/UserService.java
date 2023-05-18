@@ -1,6 +1,7 @@
 package pers.chris.sample;
 
 import pers.chris.core.annotation.Bean;
+import pers.chris.sample.base.BaseService;
 
 /**
  * @Description
@@ -8,9 +9,5 @@ import pers.chris.core.annotation.Bean;
  * @Date 2023/5/17
  */
 @Bean
-public class Service {
-
-    public void doSomething() {
-        System.out.println("Service.doSomething()");
-    }
+public class UserService extends BaseService<User, UserDao> {
 }
