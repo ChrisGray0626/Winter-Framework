@@ -1,7 +1,10 @@
 package pers.chris.core;
 
+import pers.chris.core.annotation.Application;
 import pers.chris.core.annotation.Bean;
 import pers.chris.core.annotation.Resource;
+import pers.chris.exception.ApplicationMissingException;
+import pers.chris.exception.MultipleBeanException;
 import pers.chris.util.ClassUtil;
 import pers.chris.util.ReflectUtil;
 
@@ -20,14 +23,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ApplicationContainer {
 
     private final Map<String, Object> beanMap;
-    // TODO Config package name
-    private final String[] packageName = {"pers.chris.sample"};
+    private final Class<? extends BaseApplication> applicationClass;
+    private String[] packageName;
 
-    public ApplicationContainer() {
+    public ApplicationContainer(Class<? extends BaseApplication> applicationClass) {
         beanMap = new ConcurrentHashMap<>();
+        this.applicationClass = applicationClass;
 
+        configBasePackage();
         registerBean();
         injectBean();
+    }
+
+    private void configBasePackage() {
+        if (applicationClass.isAnnotationPresent(Application.class)) {
+            Application application = applicationClass.getAnnotation(Application.class);
+            packageName = application.basePackages();
+            if (packageName.length == 0) {
+                packageName = new String[]{applicationClass.getPackage().getName()};
+            }
+        } else {
+            throw new ApplicationMissingException();
+        }
     }
 
     // TODO 循环依赖
@@ -56,35 +73,71 @@ public class ApplicationContainer {
     }
 
     private class Injector {
-        private final List<Field> unInjectedFields;
+        private final List<Field> waitingInjectedFields;
         private final Object bean;
 
         public Injector(Object bean) {
-            unInjectedFields = new ArrayList<>();
+            waitingInjectedFields = new ArrayList<>();
             this.bean = bean;
         }
 
         public void run() {
-            injectBean();
-
-            if (unInjectedFields.size() > 0) {
+            findWaitingInjectedFields();
+            if (waitingInjectedFields.size() > 0) {
+                injectBeanByName();
+            }
+            if (waitingInjectedFields.size() > 0) {
+                injectBeanByType();
+            }
+            if (waitingInjectedFields.size() > 0) {
                 if (bean.getClass().getGenericSuperclass() instanceof ParameterizedType) {
                     injectGenericBean();
                 }
             }
         }
 
-        private void injectBean() {
+        private void findWaitingInjectedFields() {
             Class<?> clazz = bean.getClass();
-            Field[] fields = ReflectUtil.getFields(clazz, true);
-            for (Field field : fields) {
+            for (Field field : ReflectUtil.getFields(clazz, true)) {
                 if (field.isAnnotationPresent(Resource.class)) {
-                    Object value = getBean(field.getType().getName());
-                    if (value == null) {
-                        unInjectedFields.add(field);
-                        continue;
+                    waitingInjectedFields.add(field);
+                }
+            }
+        }
+
+        private void injectBeanByName() {
+            Iterator<Field> iterator = waitingInjectedFields.iterator();
+            while (iterator.hasNext()) {
+                Field field = iterator.next();
+                Object value = getBean(field.getType().getName());
+                if (value == null) {
+                    continue;
+                }
+                ReflectUtil.setField(bean, field, value);
+                iterator.remove();
+            }
+        }
+
+        private void injectBeanByType() {
+            Iterator<Field> iterator = waitingInjectedFields.iterator();
+            while (iterator.hasNext()) {
+                Field field = iterator.next();
+                Class<?> type = field.getType();
+                Map<String, Object> candidates = new HashMap<>();
+                for (Map.Entry<String, Object> entry : beanMap.entrySet()) {
+                    if (type.isAssignableFrom(entry.getValue().getClass())) {
+                        candidates.put(entry.getKey(), entry.getValue());
                     }
+                }
+                if (candidates.isEmpty()) {
+                    continue;
+                }
+                if (candidates.size() > 1) {
+                    throw new MultipleBeanException(type.getName(), candidates.keySet());
+                } else {
+                    Object value = candidates.values().iterator().next();
                     ReflectUtil.setField(bean, field, value);
+                    iterator.remove();
                 }
             }
         }
@@ -100,7 +153,7 @@ public class ApplicationContainer {
                 genericClassMap.put(genericTypes[i].getName(), actualTypes[i].getTypeName());
             }
 
-            Iterator<Field> iterator = unInjectedFields.iterator();
+            Iterator<Field> iterator = waitingInjectedFields.iterator();
             while (iterator.hasNext()) {
                 Field field = iterator.next();
                 String typeName = field.getGenericType().getTypeName();
@@ -108,13 +161,8 @@ public class ApplicationContainer {
                     continue;
                 }
                 Object value = getBean(genericClassMap.get(typeName));
-                try {
-                    field.setAccessible(true);
-                    field.set(bean, value);
-                    iterator.remove();
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
+                ReflectUtil.setField(bean, field, value);
+                iterator.remove();
             }
         }
     }

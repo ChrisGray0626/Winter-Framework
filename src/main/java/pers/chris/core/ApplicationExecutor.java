@@ -13,29 +13,25 @@ import java.lang.reflect.Method;
 public class ApplicationExecutor {
 
     private static final String RUN_METHOD_NAME = "run";
-    private ApplicationContainer applicationContainer;
-    private Class<? extends BaseApplication>[] sources;
-
-    public ApplicationExecutor() {
-        applicationContainer = new ApplicationContainer();
-    }
+    private Class<? extends BaseApplication>[] applications;
 
     @SafeVarargs
-    public final ApplicationExecutor source(Class<? extends BaseApplication>... sources) {
-        this.sources = sources;
+    public final ApplicationExecutor application(Class<? extends BaseApplication>... application) {
+        this.applications = application;
         return this;
     }
 
     public void run() {
-        for (Class<? extends BaseApplication> source : sources) {
+        for (Class<? extends BaseApplication> application : applications) {
+            ApplicationContainer applicationContainer = new ApplicationContainer(application);
             Method method;
             try {
-                method = ReflectUtil.getMethod(source, RUN_METHOD_NAME);
+                method = ReflectUtil.getMethod(application, RUN_METHOD_NAME);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
             try {
-                method.invoke(applicationContainer.getBean(source.getName()));
+                method.invoke(applicationContainer.getBean(application.getName()));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
