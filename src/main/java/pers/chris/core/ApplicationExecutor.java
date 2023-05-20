@@ -6,24 +6,26 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * @Description
+ * @Description Application Executor
  * @Author Chris
  * @Date 2023/5/17
  */
 public class ApplicationExecutor {
 
+    // Application run method name
     private static final String RUN_METHOD_NAME = "run";
-    private Class<? extends BaseApplication>[] applications;
+    private Class<? extends Applicable>[] applications;
 
     @SafeVarargs
-    public final ApplicationExecutor application(Class<? extends BaseApplication>... application) {
+    public final ApplicationExecutor application(Class<? extends Applicable>... application) {
         this.applications = application;
         return this;
     }
 
     public void run() {
-        for (Class<? extends BaseApplication> application : applications) {
+        for (Class<? extends Applicable> application : applications) {
             ApplicationContainer applicationContainer = new ApplicationContainer(application);
+            // Execute run method by reflection
             Method method;
             try {
                 method = ReflectUtil.getMethod(application, RUN_METHOD_NAME);

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @Description
+ * @Description Reflection Utility
  * @Author Chris
  * @Date 2023/5/17
  */
@@ -53,6 +53,7 @@ public class ReflectUtil {
     public static Field[] getFields(Class<?> clazz, boolean withSuper) {
         List<Field> fields = new ArrayList<>();
         Class<?> currentClass = clazz;
+        // Get fields from the current class and its super classes recursively
         while (currentClass != null) {
             Field[] currentFields = currentClass.getDeclaredFields();
             fields.addAll(Arrays.asList(currentFields));
@@ -80,18 +81,19 @@ public class ReflectUtil {
     }
 
     public static Method[] getMethods(Class<?> clazz, boolean withSuper) {
+        // If the class is an interface, get its methods directly since it has no super class
         if (clazz.isInterface()) {
             return withSuper ? clazz.getMethods() : clazz.getDeclaredMethods();
         }
 
         List<Method> methods = new ArrayList<>();
         Class<?> currentClass = clazz;
+        // Get methods from the current class and its super classes recursively
         while (currentClass != null) {
             Method[] currentMethods = currentClass.getDeclaredMethods();
             methods.addAll(Arrays.asList(currentMethods));
             currentClass = withSuper ? currentClass.getSuperclass() : null;
         }
-
         return methods.toArray(new Method[0]);
     }
 }

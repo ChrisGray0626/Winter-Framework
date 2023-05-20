@@ -7,5 +7,5 @@ package pers.chris.sample.base;
  */
 public interface StudentService {
 
-    public void print();
+    void print();
 }

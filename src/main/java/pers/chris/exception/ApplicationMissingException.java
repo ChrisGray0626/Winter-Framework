@@ -1,7 +1,7 @@
 package pers.chris.exception;
 
 /**
- * @Description
+ * @Description Missing Application Bean Exception
  * @Author Chris
  * @Date 2023/5/19
  */

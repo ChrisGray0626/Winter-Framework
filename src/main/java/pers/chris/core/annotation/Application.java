@@ -3,7 +3,7 @@ package pers.chris.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * @Description
+ * @Description Annotation for Application
  * @Author Chris
  * @Date 2023/5/17
  */

@@ -13,7 +13,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * @Description
+ * @Description Class Utility
  * @Author Chris
  * @Date 2023/2/26
  */
@@ -51,6 +51,7 @@ public class ClassUtil {
         File[] files = file.listFiles();
         assert files != null;
         for (File subFile : files) {
+            // If it is a directory, scan it recursively
             if (subFile.isDirectory()) {
                 scanFile(packageName + "." + subFile.getName(), subFile.getAbsolutePath(), classes);
             } else {
