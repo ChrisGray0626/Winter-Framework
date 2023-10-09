@@ -2,8 +2,8 @@ package pers.chris.sample;
 
 import pers.chris.core.Applicable;
 import pers.chris.core.ApplicationExecutor;
-import pers.chris.core.annotation.Application;
-import pers.chris.core.annotation.Bean;
+import pers.chris.core.annotation.Component;
+import pers.chris.core.annotation.Configuration;
 import pers.chris.core.annotation.Resource;
 import pers.chris.sample.base.StudentService;
 
@@ -12,8 +12,8 @@ import pers.chris.sample.base.StudentService;
  * @Author Chris
  * @Date 2023/5/17
  */
-@Application(basePackages = {"pers.chris.sample"})
-@Bean
+@Configuration(basePackages = {"pers.chris.sample"})
+@Component
 public class SampleApplication extends Applicable {
 
     @Resource

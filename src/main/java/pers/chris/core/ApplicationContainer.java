@@ -1,7 +1,7 @@
 package pers.chris.core;
 
-import pers.chris.core.annotation.Application;
-import pers.chris.core.annotation.Bean;
+import pers.chris.core.annotation.Component;
+import pers.chris.core.annotation.Configuration;
 import pers.chris.core.annotation.Resource;
 import pers.chris.exception.ApplicationMissingException;
 import pers.chris.exception.MultipleBeanFoundException;
@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author Chris
  * @Date 2023/2/26
  */
+
+// TODO 方法注入
 public class ApplicationContainer {
 
     private final Map<String, Object> beanMap;
@@ -36,9 +38,9 @@ public class ApplicationContainer {
     }
 
     private void configBasePackage() {
-        if (applicationClass.isAnnotationPresent(Application.class)) {
-            Application application = applicationClass.getAnnotation(Application.class);
-            packageNames = application.basePackages();
+        if (applicationClass.isAnnotationPresent(Configuration.class)) {
+            Configuration configuration = applicationClass.getAnnotation(Configuration.class);
+            packageNames = configuration.basePackages();
             // If no base package is specified, use the package of the application class
             if (packageNames.length == 0) {
                 packageNames = new String[]{applicationClass.getPackage().getName()};
@@ -52,7 +54,7 @@ public class ApplicationContainer {
         Set<Class<?>> classes = ClassUtil.scanPackage(packageNames);
         for (Class<?> clazz : classes) {
             // Only register the bean
-            if (clazz.isAnnotationPresent(Bean.class)) {
+            if (ClassUtil.isAnnotationPresent(clazz, Component.class)) {
                 Object bean = ReflectUtil.newInstance(clazz);
                 beanMap.put(clazz.getName(), bean);
             }

@@ -2,6 +2,7 @@ package pers.chris.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -35,7 +36,7 @@ public class ClassUtil {
                         scanFile(packageName, filePath, classes);
                     } else if (resource.getProtocol().equals("jar")) {
                         JarURLConnection jarURLConnection = (JarURLConnection) resource.openConnection();
-                        findClassesByJar(packageName, jarURLConnection, classes);
+                        scanJar(packageName, jarURLConnection, classes);
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -62,7 +63,7 @@ public class ClassUtil {
         }
     }
 
-    private static void findClassesByJar(String packageName, JarURLConnection jarURLConnection, Set<Class<?>> classes)
+    private static void scanJar(String packageName, JarURLConnection jarURLConnection, Set<Class<?>> classes)
             throws ClassNotFoundException, IOException {
         JarFile jarFile = jarURLConnection.getJarFile();
         Enumeration<JarEntry> entries = jarFile.entries();
@@ -75,5 +76,22 @@ public class ClassUtil {
                 classes.add(clazz);
             }
         }
+    }
+
+    public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        // 递归子注解
+        if (clazz.isAnnotationPresent(annotationClass)) {
+            return true;
+        }
+        for (Annotation annotation : clazz.getAnnotations()) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (annotationType.getPackageName().equals("java.lang.annotation")) {
+                continue;
+            }
+            if (isAnnotationPresent(annotationType, annotationClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -1,6 +1,6 @@
 package pers.chris.sample;
 
-import pers.chris.core.annotation.Bean;
+import pers.chris.core.annotation.Entity;
 import pers.chris.sample.base.BaseEntity;
 
 /**
@@ -8,6 +8,6 @@ import pers.chris.sample.base.BaseEntity;
  * @Author Chris
  * @Date 2023/5/18
  */
-@Bean
+@Entity
 public class User extends BaseEntity {
 }

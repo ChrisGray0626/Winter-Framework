@@ -1,6 +1,7 @@
 package pers.chris.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +20,8 @@ public class ReflectUtil {
     public static Object newInstance(Class<?> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -28,7 +30,7 @@ public class ReflectUtil {
         try {
             field.setAccessible(true);
             field.set(object, value);
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

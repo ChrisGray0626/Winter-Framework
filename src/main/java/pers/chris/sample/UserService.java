@@ -1,6 +1,6 @@
 package pers.chris.sample;
 
-import pers.chris.core.annotation.Bean;
+import pers.chris.core.annotation.Component;
 import pers.chris.sample.base.BaseService;
 
 /**
@@ -8,6 +8,6 @@ import pers.chris.sample.base.BaseService;
  * @Author Chris
  * @Date 2023/5/17
  */
-@Bean
+@Component
 public class UserService extends BaseService<User, UserDao> {
 }

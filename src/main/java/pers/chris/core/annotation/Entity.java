@@ -3,12 +3,13 @@ package pers.chris.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * @Description Annotation for Bean
+ * @Description
  * @Author Chris
- * @Date 2023/5/17
+ * @Date 2023/10/9
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-public @interface Bean {
+@Component
+public @interface Entity {
 }

@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Bean
-public @interface Application {
+@Component
+public @interface Configuration {
     String[] basePackages() default {};
 }
