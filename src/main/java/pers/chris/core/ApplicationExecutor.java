@@ -24,7 +24,7 @@ public class ApplicationExecutor {
 
     public void run() {
         for (Class<? extends Applicable> application : applications) {
-            ApplicationContainer applicationContainer = new ApplicationContainer(application);
+            ApplicationContext applicationContainer = new ApplicationContext(application);
             // Execute run method by reflection
             Method method;
             try {

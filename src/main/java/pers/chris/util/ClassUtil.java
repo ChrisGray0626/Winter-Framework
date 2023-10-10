@@ -23,8 +23,8 @@ public class ClassUtil {
     private ClassUtil() {
     }
 
-    public static Set<Class<?>> scanPackage(String... packageNames) {
-        Set<Class<?>> classes = new HashSet<>();
+    public static Set<String> scanPackageForClassName(String... packageNames) {
+        Set<String> classes = new HashSet<>();
         for (String packageName : packageNames) {
             String path = packageName.replace(".", "/");
             try {
@@ -46,7 +46,7 @@ public class ClassUtil {
         return classes;
     }
 
-    private static void scanFile(String packageName, String filePath, Set<Class<?>> classes)
+    private static void scanFile(String packageName, String filePath, Set<String> classeNames)
             throws ClassNotFoundException {
         File file = new File(filePath);
         File[] files = file.listFiles();
@@ -54,16 +54,15 @@ public class ClassUtil {
         for (File subFile : files) {
             // If it is a directory, scan it recursively
             if (subFile.isDirectory()) {
-                scanFile(packageName + "." + subFile.getName(), subFile.getAbsolutePath(), classes);
+                scanFile(packageName + "." + subFile.getName(), subFile.getAbsolutePath(), classeNames);
             } else {
-                String className = subFile.getName().substring(0, subFile.getName().length() - 6);
-                Class<?> clazz = Class.forName(packageName + "." + className);
-                classes.add(clazz);
+                String className = packageName + "." + subFile.getName().substring(0, subFile.getName().length() - 6);
+                classeNames.add(className);
             }
         }
     }
 
-    private static void scanJar(String packageName, JarURLConnection jarURLConnection, Set<Class<?>> classes)
+    private static void scanJar(String packageName, JarURLConnection jarURLConnection, Set<String> classes)
             throws ClassNotFoundException, IOException {
         JarFile jarFile = jarURLConnection.getJarFile();
         Enumeration<JarEntry> entries = jarFile.entries();
@@ -72,19 +71,18 @@ public class ClassUtil {
             String jarEntryName = jarEntry.getName();
             if (jarEntryName.endsWith(".class") && jarEntryName.startsWith(packageName.replace(".", "/"))) {
                 String className = jarEntryName.substring(0, jarEntryName.length() - 6).replace("/", ".");
-                Class<?> clazz = Class.forName(className);
-                classes.add(clazz);
+                classes.add(className);
             }
         }
     }
 
     public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        // 递归子注解
         if (clazz.isAnnotationPresent(annotationClass)) {
             return true;
         }
         for (Annotation annotation : clazz.getAnnotations()) {
             Class<? extends Annotation> annotationType = annotation.annotationType();
+            // Exclude meta annotations
             if (annotationType.getPackageName().equals("java.lang.annotation")) {
                 continue;
             }

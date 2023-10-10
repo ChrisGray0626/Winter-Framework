@@ -1,5 +1,7 @@
 package pers.chris.core;
 
+import pers.chris.BeanDefinition;
+import pers.chris.core.annotation.Bean;
 import pers.chris.core.annotation.Component;
 import pers.chris.core.annotation.Configuration;
 import pers.chris.core.annotation.Resource;
@@ -8,12 +10,8 @@ import pers.chris.exception.MultipleBeanFoundException;
 import pers.chris.util.ClassUtil;
 import pers.chris.util.ReflectUtil;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Description Application Container
@@ -21,72 +19,103 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date 2023/2/26
  */
 
-// TODO 方法注入
-public class ApplicationContainer {
+// TODO Factory 注入 BeanPostProcessor
+public class ApplicationContext {
 
-    private final Map<String, Object> beanMap;
-    private final Class<? extends Applicable> applicationClass;
-    private String[] packageNames;
+    private final Map<String, BeanDefinition> beanMap;
 
-    public ApplicationContainer(Class<? extends Applicable> applicationClass) {
-        beanMap = new ConcurrentHashMap<>();
-        this.applicationClass = applicationClass;
+    @SafeVarargs
+    public ApplicationContext(Class<? extends Applicable>... configurationClasses) {
+        Set<String> beanNames = new HashSet<>();
+        beanMap = new HashMap<>();
 
-        configBasePackage();
-        registerBean();
+        for (Class<? extends Applicable> configurationClass : configurationClasses) {
+            String[] packageNames = extractBasePackage(configurationClass);
+            beanNames.addAll(ClassUtil.scanPackageForClassName(packageNames));
+        }
+
+//        createBeanByConstructor(beanNames);
+
+//        this.beanMap.values().stream().filter(bean -> bean.getClass().isAnnotationPresent(Configuration.class))
+//                .forEach(bean -> this.createBeanByFactory(bean.getClass().getName(), bean.getClass()));
         injectBean();
     }
 
-    private void configBasePackage() {
-        if (applicationClass.isAnnotationPresent(Configuration.class)) {
-            Configuration configuration = applicationClass.getAnnotation(Configuration.class);
+    private String[] extractBasePackage(Class<?> configurationClass) {
+        String[] packageNames;
+        if (ClassUtil.isAnnotationPresent(configurationClass, Configuration.class)) {
+            Configuration configuration = configurationClass.getAnnotation(Configuration.class);
             packageNames = configuration.basePackages();
             // If no base package is specified, use the package of the application class
             if (packageNames.length == 0) {
-                packageNames = new String[]{applicationClass.getPackage().getName()};
+                packageNames = new String[]{configurationClass.getPackage().getName()};
             }
         } else {
             throw new ApplicationMissingException();
         }
+        return packageNames;
     }
 
-    private void registerBean() {
-        Set<Class<?>> classes = ClassUtil.scanPackage(packageNames);
-        for (Class<?> clazz : classes) {
-            // Only register the bean
+    private void createBeanDefinition(Set<String> beanNames) {
+        for (String beanName : beanNames) {
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(beanName);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             if (ClassUtil.isAnnotationPresent(clazz, Component.class)) {
-                Object bean = ReflectUtil.newInstance(clazz);
-                beanMap.put(clazz.getName(), bean);
+                beanMap.put(beanName, new BeanDefinition(beanName, clazz));
+            }
+        }
+    }
+
+    private void createConfigurationBean(BeanDefinition beanDefinition) {
+        if (beanDefinition.getBeanClass().isAnnotationPresent(Configuration.class)) {
+            this.createBeanByConstructor(beanDefinition);
+        }
+    }
+
+    private void createBeanByConstructor(BeanDefinition beanDefinition) {
+        Object bean = ReflectUtil.newInstance(beanDefinition.getBeanClass());
+        beanDefinition.setInstance(bean);
+    }
+
+    private void createBeanByFactory(BeanDefinition beanDefinition) {
+        for (Method method : ReflectUtil.getMethods(beanDefinition.getBeanClass(), true)) {
+            if (method.isAnnotationPresent(Bean.class)) {
+                Object bean = ReflectUtil.invokeMethod(beanMap.get(beanDefinition.getFactoryBeanName()), method);
+                beanDefinition.setInstance(bean);
             }
         }
     }
 
     private void injectBean() {
-        for (Object bean : beanMap.values()) {
-            injectBean(bean);
+        for (BeanDefinition beanDefinition : beanMap.values()) {
+            injectBean(beanDefinition);
         }
     }
 
-    public void injectBean(Object bean) {
-        new Injector(bean).run();
+    public void injectBean(BeanDefinition beanDefinition) {
+        new Injector(beanDefinition).run();
     }
 
-    public Object getBean(String name) {
-        if (!beanMap.containsKey(name)) {
+    public Object getBean(String beanName) {
+        if (!beanMap.containsKey(beanName)) {
             return null;
         }
-        return beanMap.get(name);
+        return beanMap.get(beanName).getInstance();
     }
 
     private class Injector {
 
         // The fields waiting to be injected
         private final List<Field> waitingInjectedFields;
-        private final Object bean;
+        private final BeanDefinition beanDefinition;
 
-        public Injector(Object bean) {
+        public Injector(BeanDefinition beanDefinition) {
             waitingInjectedFields = new ArrayList<>();
-            this.bean = bean;
+            this.beanDefinition = beanDefinition;
         }
 
         public void run() {
@@ -98,14 +127,14 @@ public class ApplicationContainer {
                 injectBeanByType();
             }
             if (waitingInjectedFields.size() > 0) {
-                if (bean.getClass().getGenericSuperclass() instanceof ParameterizedType) {
+                if (beanDefinition.getBeanClass().getGenericSuperclass() instanceof ParameterizedType) {
                     injectGenericBean();
                 }
             }
         }
 
         private void findWaitingInjectedFields() {
-            Class<?> clazz = bean.getClass();
+            Class<?> clazz = beanDefinition.getBeanClass();
             for (Field field : ReflectUtil.getFields(clazz, true)) {
                 if (field.isAnnotationPresent(Resource.class)) {
                     waitingInjectedFields.add(field);
@@ -122,7 +151,7 @@ public class ApplicationContainer {
                 if (value == null) {
                     continue;
                 }
-                ReflectUtil.setField(bean, field, value);
+                ReflectUtil.setField(beanDefinition.getInstance(), field, value);
                 iterator.remove();
             }
         }
@@ -132,11 +161,12 @@ public class ApplicationContainer {
             while (iterator.hasNext()) {
                 Field field = iterator.next();
                 Class<?> type = field.getType();
+                // TODO Map to List
                 Map<String, Object> candidates = new HashMap<>();
                 // Inject the bean by type
-                for (Map.Entry<String, Object> entry : beanMap.entrySet()) {
-                    if (type.isAssignableFrom(entry.getValue().getClass())) {
-                        candidates.put(entry.getKey(), entry.getValue());
+                for (BeanDefinition beanDefinition : beanMap.values()) {
+                    if (type.isAssignableFrom(beanDefinition.getBeanClass())) {
+                        candidates.put(beanDefinition.getBeanName(), beanDefinition.getInstance());
                     }
                 }
                 if (candidates.isEmpty()) {
@@ -147,13 +177,13 @@ public class ApplicationContainer {
                     throw new MultipleBeanFoundException(type.getName(), candidates.keySet());
                 }
                 Object value = candidates.values().iterator().next();
-                ReflectUtil.setField(bean, field, value);
+                ReflectUtil.setField(beanDefinition.getInstance(), field, value);
                 iterator.remove();
             }
         }
 
         private void injectGenericBean() {
-            Class<?> clazz = bean.getClass();
+            Class<?> clazz = beanDefinition.getBeanClass();
             // Get the generic type
             TypeVariable<? extends Class<?>>[] genericTypes = clazz.getSuperclass().getTypeParameters();
             // Get the actual type
@@ -173,7 +203,7 @@ public class ApplicationContainer {
                     continue;
                 }
                 Object value = getBean(genericClassMap.get(typeName));
-                ReflectUtil.setField(bean, field, value);
+                ReflectUtil.setField(beanDefinition.getInstance(), field, value);
                 iterator.remove();
             }
         }

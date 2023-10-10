@@ -2,6 +2,7 @@ package pers.chris.sample;
 
 import pers.chris.core.Applicable;
 import pers.chris.core.ApplicationExecutor;
+import pers.chris.core.annotation.Bean;
 import pers.chris.core.annotation.Component;
 import pers.chris.core.annotation.Configuration;
 import pers.chris.core.annotation.Resource;
@@ -24,6 +25,16 @@ public class SampleApplication extends Applicable {
     private A a;
     @Resource
     private B b;
+
+    @Bean
+    public A a() {
+        return new A();
+    }
+
+    @Bean
+    public B b() {
+        return new B();
+    }
 
     public static void main(String[] args) {
         new ApplicationExecutor().application(SampleApplication.class).run();

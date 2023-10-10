@@ -64,6 +64,15 @@ public class ReflectUtil {
         return fields.toArray(new Field[0]);
     }
 
+    public static Object invokeMethod(Object object, Method method, Object... args) {
+        try {
+            method.setAccessible(true);
+            return method.invoke(object, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Method getMethod(Class<?> clazz, String methodName) throws NoSuchMethodException {
         Method method = searchMethod(clazz, methodName);
         if (method == null) {
