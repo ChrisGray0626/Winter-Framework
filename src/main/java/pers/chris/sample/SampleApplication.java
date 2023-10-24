@@ -31,11 +31,6 @@ public class SampleApplication extends Applicable {
         return new A();
     }
 
-    @Bean
-    public B b() {
-        return new B();
-    }
-
     public static void main(String[] args) {
         new ApplicationExecutor().application(SampleApplication.class).run();
     }

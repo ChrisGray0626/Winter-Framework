@@ -82,7 +82,7 @@ public class ReflectUtil {
     }
 
     private static Method searchMethod(Class<?> clazz, String methodName) {
-        Method[] methods = getMethods(clazz, true);
+        Method[] methods = getMethod(clazz, true);
         for (Method method : methods) {
             if (method.getName().equals(methodName)) {
                 return method;
@@ -91,7 +91,11 @@ public class ReflectUtil {
         return null;
     }
 
-    public static Method[] getMethods(Class<?> clazz, boolean withSuper) {
+    public static Method[] getDeclaredMethod(Class<?> clazz) {
+        return clazz.getDeclaredMethods();
+    }
+
+    public static Method[] getMethod(Class<?> clazz, boolean withSuper) {
         // If the class is an interface, get its methods directly since it has no super class
         if (clazz.isInterface()) {
             return withSuper ? clazz.getMethods() : clazz.getDeclaredMethods();

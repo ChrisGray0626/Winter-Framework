@@ -7,6 +7,7 @@ import pers.chris.core.annotation.Configuration;
 import pers.chris.core.annotation.Resource;
 import pers.chris.exception.ApplicationMissingException;
 import pers.chris.exception.MultipleBeanFoundException;
+import pers.chris.util.BeanUtil;
 import pers.chris.util.ClassUtil;
 import pers.chris.util.ReflectUtil;
 
@@ -26,6 +27,7 @@ public class ApplicationContext {
 
     @SafeVarargs
     public ApplicationContext(Class<? extends Applicable>... configurationClasses) {
+        this.beanMap = new HashMap<>();
         Set<String> beanNames = new HashSet<>();
 
         for (Class<? extends Applicable> configurationClass : configurationClasses) {
@@ -33,9 +35,7 @@ public class ApplicationContext {
             beanNames.addAll(ClassUtil.scanPackageForClassName(packageNames));
         }
 
-        this.beanMap = this.createBeanDefinition(beanNames);
-//        createBeanByConstructor(beanNames);
-
+        this.createBeanDefinition(beanNames);
         this.createConfigurationBean();
         this.createNormalBean();
 
@@ -57,8 +57,7 @@ public class ApplicationContext {
         return packageNames;
     }
 
-    private Map<String, BeanDefinition> createBeanDefinition(Set<String> beanNames) {
-        Map<String, BeanDefinition> beanMap = new HashMap<>();
+    private void createBeanDefinition(Set<String> beanNames) {
         for (String beanName : beanNames) {
             Class<?> clazz;
             try {
@@ -67,10 +66,32 @@ public class ApplicationContext {
                 throw new RuntimeException(e);
             }
             if (ClassUtil.isAnnotationPresent(clazz, Component.class)) {
-                beanMap.put(beanName, new BeanDefinition(beanName, clazz));
+                BeanDefinition beanDefinition = new BeanDefinition(beanName, clazz);
+                this.addBeanDefinition(beanDefinition);
+                if (ClassUtil.isAnnotationPresent(clazz, Configuration.class)) {
+                    this.scanFactoryMethod(beanName, clazz);
+                }
             }
         }
-        return beanMap;
+    }
+
+    private void addBeanDefinition(BeanDefinition beanDefinition) {
+        String beanName = beanDefinition.getBeanName();
+        if (this.beanMap.containsKey(beanName)) {
+            throw new DuplicateFormatFlagsException(beanName);
+        }
+        beanMap.put(beanName, beanDefinition);
+    }
+
+    private void scanFactoryMethod(String factoryBeanName, Class<?> factoryBeanClass) {
+        for (Method method : ReflectUtil.getDeclaredMethod(factoryBeanClass)) {
+            if (method.isAnnotationPresent(Bean.class)) {
+                String beanName = BeanUtil.getBeanName(method);
+                Class<?> beanClass = method.getReturnType();
+                BeanDefinition beanDefinition = new BeanDefinition(beanName, beanClass, factoryBeanName, method);
+                this.addBeanDefinition(beanDefinition);
+            }
+        }
     }
 
     private void createConfigurationBean() {
@@ -90,7 +111,7 @@ public class ApplicationContext {
     }
 
     private void createBeanByFactory(BeanDefinition beanDefinition) {
-        for (Method method : ReflectUtil.getMethods(beanDefinition.getBeanClass(), true)) {
+        for (Method method : ReflectUtil.getMethod(beanDefinition.getBeanClass(), true)) {
             if (method.isAnnotationPresent(Bean.class)) {
                 Object bean = ReflectUtil.invokeMethod(beanMap.get(beanDefinition.getFactoryBeanName()), method);
                 beanDefinition.setInstance(bean);

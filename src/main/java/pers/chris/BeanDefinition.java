@@ -20,6 +20,13 @@ public class BeanDefinition {
         this.beanClass = beanClass;
     }
 
+    public BeanDefinition(String beanName, Class<?> beanClass, String factoryBeanName, Method factoryMethod) {
+        this.beanName = beanName;
+        this.beanClass = beanClass;
+        this.factoryBeanName = factoryBeanName;
+        this.factoryMethod = factoryMethod;
+    }
+
     public String getBeanName() {
         return beanName;
     }
