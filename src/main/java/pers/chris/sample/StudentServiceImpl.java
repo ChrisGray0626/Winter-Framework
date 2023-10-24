@@ -10,7 +10,7 @@ import pers.chris.util.PrintUtil;
  * @Date 2023/5/19
  */
 @Component
-public class StudentStudentServiceImpl implements StudentService {
+public class StudentServiceImpl implements StudentService {
 
     @Override
     public void print() {

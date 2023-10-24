@@ -27,18 +27,19 @@ public class ApplicationContext {
     @SafeVarargs
     public ApplicationContext(Class<? extends Applicable>... configurationClasses) {
         Set<String> beanNames = new HashSet<>();
-        beanMap = new HashMap<>();
 
         for (Class<? extends Applicable> configurationClass : configurationClasses) {
             String[] packageNames = extractBasePackage(configurationClass);
             beanNames.addAll(ClassUtil.scanPackageForClassName(packageNames));
         }
 
+        this.beanMap = this.createBeanDefinition(beanNames);
 //        createBeanByConstructor(beanNames);
 
-//        this.beanMap.values().stream().filter(bean -> bean.getClass().isAnnotationPresent(Configuration.class))
-//                .forEach(bean -> this.createBeanByFactory(bean.getClass().getName(), bean.getClass()));
-        injectBean();
+        this.createConfigurationBean();
+        this.createNormalBean();
+
+        this.injectBean();
     }
 
     private String[] extractBasePackage(Class<?> configurationClass) {
@@ -56,7 +57,8 @@ public class ApplicationContext {
         return packageNames;
     }
 
-    private void createBeanDefinition(Set<String> beanNames) {
+    private Map<String, BeanDefinition> createBeanDefinition(Set<String> beanNames) {
+        Map<String, BeanDefinition> beanMap = new HashMap<>();
         for (String beanName : beanNames) {
             Class<?> clazz;
             try {
@@ -68,12 +70,18 @@ public class ApplicationContext {
                 beanMap.put(beanName, new BeanDefinition(beanName, clazz));
             }
         }
+        return beanMap;
     }
 
-    private void createConfigurationBean(BeanDefinition beanDefinition) {
-        if (beanDefinition.getBeanClass().isAnnotationPresent(Configuration.class)) {
-            this.createBeanByConstructor(beanDefinition);
-        }
+    private void createConfigurationBean() {
+        this.beanMap.values().stream().filter(bean -> bean.getBeanClass().isAnnotationPresent(Configuration.class))
+                .forEach(this::createBeanByConstructor);
+    }
+
+    private void createNormalBean() {
+        // TODO Factory method
+        this.beanMap.values().stream().filter(bean -> bean.getInstance() == null)
+                .forEach(this::createBeanByConstructor);
     }
 
     private void createBeanByConstructor(BeanDefinition beanDefinition) {
