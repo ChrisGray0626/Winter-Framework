@@ -95,28 +95,40 @@ public class ApplicationContext {
     }
 
     private void createConfigurationBean() {
-        this.beanMap.values().stream().filter(bean -> bean.getBeanClass().isAnnotationPresent(Configuration.class))
+        this.beanMap.values().stream().filter(beanDefinition -> beanDefinition.getBeanClass().isAnnotationPresent(Configuration.class))
                 .forEach(this::createBeanByConstructor);
     }
 
     private void createNormalBean() {
         // TODO Factory method
-        this.beanMap.values().stream().filter(bean -> bean.getInstance() == null)
+        this.beanMap.values().stream().filter(beanDefinition -> beanDefinition.getInstance() == null)
                 .forEach(this::createBeanByConstructor);
     }
 
+    private void createBean(BeanDefinition beanDefinition) {
+        // TODO createBean createBeanByConstructor createBeanByFactoryMethod
+    }
+
     private void createBeanByConstructor(BeanDefinition beanDefinition) {
-        Object bean = ReflectUtil.newInstance(beanDefinition.getBeanClass());
+        Object bean;
+        try {
+            bean = beanDefinition.getBeanConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
         beanDefinition.setInstance(bean);
     }
 
-    private void createBeanByFactory(BeanDefinition beanDefinition) {
-        for (Method method : ReflectUtil.getMethod(beanDefinition.getBeanClass(), true)) {
-            if (method.isAnnotationPresent(Bean.class)) {
-                Object bean = ReflectUtil.invokeMethod(beanMap.get(beanDefinition.getFactoryBeanName()), method);
-                beanDefinition.setInstance(bean);
-            }
+    // TODO factory method args
+    private void createBeanByFactoryMethod(BeanDefinition beanDefinition) {
+        Object factoryBean = this.getBean(beanDefinition.getFactoryBeanName());
+        Object bean;
+        try {
+            bean = beanDefinition.getFactoryMethod().invoke(factoryBean);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
+        beanDefinition.setInstance(bean);
     }
 
     private void injectBean() {

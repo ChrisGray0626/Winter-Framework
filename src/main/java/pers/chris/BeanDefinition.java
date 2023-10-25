@@ -1,5 +1,8 @@
 package pers.chris;
 
+import pers.chris.util.BeanUtil;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
@@ -12,17 +15,18 @@ public class BeanDefinition {
     private final String beanName;
     private final Class<?> beanClass;
     private Object instance = null;
+    private final Constructor<?> beanConstructor;
     private String factoryBeanName = null;
     private Method factoryMethod = null;
 
     public BeanDefinition(String beanName, Class<?> beanClass) {
         this.beanName = beanName;
         this.beanClass = beanClass;
+        this.beanConstructor = BeanUtil.getBeanConstructor(beanClass);
     }
 
     public BeanDefinition(String beanName, Class<?> beanClass, String factoryBeanName, Method factoryMethod) {
-        this.beanName = beanName;
-        this.beanClass = beanClass;
+        this(beanName, beanClass);
         this.factoryBeanName = factoryBeanName;
         this.factoryMethod = factoryMethod;
     }
@@ -41,6 +45,10 @@ public class BeanDefinition {
 
     public void setInstance(Object instance) {
         this.instance = instance;
+    }
+
+    public Constructor<?> getBeanConstructor() {
+        return beanConstructor;
     }
 
     public String getFactoryBeanName() {

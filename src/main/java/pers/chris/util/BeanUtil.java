@@ -1,7 +1,10 @@
 package pers.chris.util;
 
 import pers.chris.core.annotation.Bean;
+import pers.chris.exception.MultipleConstructorFoundException;
+import pers.chris.exception.NoConstructorFoundException;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
@@ -21,5 +24,16 @@ public class BeanUtil {
             beanName = method.getName();
         }
         return beanName;
+    }
+
+    public static Constructor<?> getBeanConstructor(Class<?> beanClass) {
+        Constructor<?>[] constructors = beanClass.getConstructors();
+        if (constructors.length == 0) {
+            throw new NoConstructorFoundException(beanClass.getName());
+        }
+        if (constructors.length > 1) {
+            throw new MultipleConstructorFoundException(beanClass.getName());
+        }
+        return constructors[0];
     }
 }
