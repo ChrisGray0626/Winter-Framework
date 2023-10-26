@@ -10,6 +10,7 @@ import pers.chris.exception.MultipleBeanFoundException;
 import pers.chris.util.BeanUtil;
 import pers.chris.util.ClassUtil;
 import pers.chris.util.ReflectUtil;
+import pers.chris.util.StringUtil;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -96,17 +97,20 @@ public class ApplicationContext {
 
     private void createConfigurationBean() {
         this.beanMap.values().stream().filter(beanDefinition -> beanDefinition.getBeanClass().isAnnotationPresent(Configuration.class))
-                .forEach(this::createBeanByConstructor);
+                .forEach(this::createBean);
     }
 
     private void createNormalBean() {
-        // TODO Factory method
         this.beanMap.values().stream().filter(beanDefinition -> beanDefinition.getInstance() == null)
-                .forEach(this::createBeanByConstructor);
+                .forEach(this::createBean);
     }
 
     private void createBean(BeanDefinition beanDefinition) {
-        // TODO createBean createBeanByConstructor createBeanByFactoryMethod
+        if (StringUtil.isEmpty(beanDefinition.getFactoryBeanName())) {
+            createBeanByConstructor(beanDefinition);
+        } else {
+            createBeanByFactoryMethod(beanDefinition);
+        }
     }
 
     private void createBeanByConstructor(BeanDefinition beanDefinition) {
