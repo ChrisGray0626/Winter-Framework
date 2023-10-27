@@ -1,6 +1,9 @@
 package pers.chris.util;
 
+import pers.chris.BeanDefinition;
+import pers.chris.core.BeanPostProcessor;
 import pers.chris.core.annotation.Bean;
+import pers.chris.core.annotation.Configuration;
 import pers.chris.exception.MultipleConstructorFoundException;
 import pers.chris.exception.NoConstructorFoundException;
 
@@ -35,5 +38,13 @@ public class BeanUtil {
             throw new MultipleConstructorFoundException(beanClass.getName());
         }
         return constructors[0];
+    }
+
+    public static boolean isConfigurationBeanDefinition(BeanDefinition beanDefinition) {
+        return beanDefinition.getBeanClass().isAnnotationPresent(Configuration.class);
+    }
+
+    public static boolean isBeanPostProcessorDefinition(BeanDefinition beanDefinition) {
+        return BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass());
     }
 }

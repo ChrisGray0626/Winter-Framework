@@ -21,14 +21,16 @@ import java.util.*;
  * @Date 2023/2/26
  */
 
-// TODO Factory 注入 BeanPostProcessor
+// TODO 注入 BeanPostProcessor
 public class ApplicationContext {
 
     private final Map<String, BeanDefinition> beanMap;
+    private List<BeanPostProcessor> beanPostProcessors;
 
     @SafeVarargs
     public ApplicationContext(Class<? extends Applicable>... configurationClasses) {
         this.beanMap = new HashMap<>();
+        this.beanPostProcessors = new ArrayList<>();
         Set<String> beanNames = new HashSet<>();
 
         for (Class<? extends Applicable> configurationClass : configurationClasses) {
@@ -39,7 +41,7 @@ public class ApplicationContext {
         this.createBeanDefinition(beanNames);
         this.createConfigurationBean();
         this.createNormalBean();
-
+        this.createBeanPostProcessor();
         this.injectBean();
     }
 
@@ -96,8 +98,16 @@ public class ApplicationContext {
     }
 
     private void createConfigurationBean() {
-        this.beanMap.values().stream().filter(beanDefinition -> beanDefinition.getBeanClass().isAnnotationPresent(Configuration.class))
+        this.beanMap.values().stream().filter(BeanUtil::isConfigurationBeanDefinition)
                 .forEach(this::createBean);
+    }
+
+    private void createBeanPostProcessor() {
+        this.beanMap.values().stream().filter(BeanUtil::isBeanPostProcessorDefinition)
+                .forEach(beanDefinition -> {
+                    this.createBean(beanDefinition);
+                    beanPostProcessors.add((BeanPostProcessor) beanDefinition.getInstance());
+                });
     }
 
     private void createNormalBean() {
@@ -111,6 +121,13 @@ public class ApplicationContext {
         } else {
             createBeanByFactoryMethod(beanDefinition);
         }
+        // Use BeanPostProcessor to process the bean
+        this.beanPostProcessors.forEach(
+                beanPostProcessor -> {
+                    Object processedBean = beanPostProcessor.postProcessBeforeInitialization(beanDefinition.getInstance(), beanDefinition.getBeanName());
+                    beanDefinition.setInstance(processedBean);
+                }
+        );
     }
 
     private void createBeanByConstructor(BeanDefinition beanDefinition) {
@@ -143,6 +160,11 @@ public class ApplicationContext {
 
     public void injectBean(BeanDefinition beanDefinition) {
         new Injector(beanDefinition).run();
+    }
+
+    // TODO getProxiedInstance
+    private void getProxiedInstance(BeanDefinition beanDefinition) {
+
     }
 
     public Object getBean(String beanName) {
