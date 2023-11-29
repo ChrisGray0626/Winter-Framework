@@ -5,7 +5,7 @@ package pers.chris.core;
  * @Author Chris
  * @Date 2023/5/17
  */
-public abstract class Applicable {
+public interface Applicable {
 
-    public abstract void run();
+    void run();
 }

@@ -15,7 +15,7 @@ import pers.chris.sample.base.StudentService;
  */
 @Configuration(basePackages = {"pers.chris.sample"})
 @Component
-public class SampleApplication extends Applicable {
+public class SampleApplication implements Applicable {
 
     @Resource
     private UserController userController;

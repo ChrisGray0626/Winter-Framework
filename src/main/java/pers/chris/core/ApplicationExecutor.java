@@ -1,10 +1,5 @@
 package pers.chris.core;
 
-import pers.chris.util.ReflectUtil;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /**
  * @Description Application Executor
  * @Author Chris
@@ -12,31 +7,19 @@ import java.lang.reflect.Method;
  */
 public class ApplicationExecutor {
 
-    // Application run method name
-    private static final String RUN_METHOD_NAME = "run";
-    private Class<? extends Applicable>[] applications;
+    private Class<? extends Applicable>[] applicationClasses;
 
     @SafeVarargs
-    public final ApplicationExecutor application(Class<? extends Applicable>... application) {
-        this.applications = application;
+    public final ApplicationExecutor application(Class<? extends Applicable>... applicationClasses) {
+        this.applicationClasses = applicationClasses;
         return this;
     }
 
     public void run() {
-        for (Class<? extends Applicable> application : applications) {
-            ApplicationContext applicationContainer = new ApplicationContext(application);
-            // Execute run method by reflection
-            Method method;
-            try {
-                method = ReflectUtil.getMethod(application, RUN_METHOD_NAME);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                method.invoke(applicationContainer.getBean(application.getName()));
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+        for (Class<? extends Applicable> application : applicationClasses) {
+            ApplicationContext applicationContext = new ApplicationContext(application);
+            Applicable applicationBean = (Applicable) applicationContext.getBean(application.getName());
+            applicationBean.run();
         }
     }
 }
