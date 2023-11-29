@@ -21,11 +21,10 @@ import java.util.*;
  * @Date 2023/2/26
  */
 
-// TODO 注入 BeanPostProcessor
 public class ApplicationContext {
 
     private final Map<String, BeanDefinition> beanMap;
-    private List<BeanPostProcessor> beanPostProcessors;
+    private final List<BeanPostProcessor> beanPostProcessors;
 
     @SafeVarargs
     public ApplicationContext(Class<? extends Applicable>... configurationClasses) {
@@ -40,9 +39,10 @@ public class ApplicationContext {
 
         this.createBeanDefinition(beanNames);
         this.createConfigurationBean();
-        this.createNormalBean();
         this.createBeanPostProcessor();
+        this.createNormalBean();
         this.injectBean();
+        this.initBean();
     }
 
     private String[] extractBasePackage(Class<?> configurationClass) {
@@ -154,7 +154,7 @@ public class ApplicationContext {
 
     private void injectBean() {
         for (BeanDefinition beanDefinition : beanMap.values()) {
-            injectBean(beanDefinition);
+            this.injectBean(beanDefinition);
         }
     }
 
@@ -162,9 +162,27 @@ public class ApplicationContext {
         new Injector(beanDefinition).run();
     }
 
-    // TODO getProxiedInstance
-    private void getProxiedInstance(BeanDefinition beanDefinition) {
+    private void initBean() {
+        for (BeanDefinition beanDefinition : beanMap.values()) {
+            this.initBean(beanDefinition);
+        }
+    }
 
+    private void initBean(BeanDefinition beanDefinition) {
+        Object bean = beanDefinition.getInstance();
+
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            bean = beanPostProcessor.postProcessAfterInitialization(bean, beanDefinition.getBeanName());
+        }
+        beanDefinition.setInstance(bean);
+    }
+
+    private Object getOriginalInstance(BeanDefinition beanDefinition) {
+        Object bean = beanDefinition.getInstance();
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            bean = beanPostProcessor.postProcessOnSetProperty(bean, beanDefinition.getBeanName());
+        }
+        return bean;
     }
 
     public Object getBean(String beanName) {
