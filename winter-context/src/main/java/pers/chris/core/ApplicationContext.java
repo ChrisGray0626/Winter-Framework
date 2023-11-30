@@ -1,5 +1,7 @@
 package pers.chris.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pers.chris.core.annotation.Bean;
 import pers.chris.core.annotation.Component;
 import pers.chris.core.annotation.Configuration;
@@ -24,6 +26,8 @@ public class ApplicationContext {
 
     private final Map<String, BeanDefinition> beanMap;
     private final List<BeanPostProcessor> beanPostProcessors;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationContext.class);
 
     @SafeVarargs
     public ApplicationContext(Class<? extends Applicable>... configurationClasses) {
@@ -120,6 +124,7 @@ public class ApplicationContext {
         } else {
             createBeanByFactoryMethod(beanDefinition);
         }
+        LOGGER.debug("Bean {} has been created successfully.", beanDefinition.getBeanName());
         // Use BeanPostProcessor to process the bean
         this.beanPostProcessors.forEach(
                 beanPostProcessor -> {
@@ -245,7 +250,6 @@ public class ApplicationContext {
             while (iterator.hasNext()) {
                 Field field = iterator.next();
                 Class<?> type = field.getType();
-                // TODO Map to List
                 Map<String, Object> candidates = new HashMap<>();
                 // Inject the bean by type
                 for (BeanDefinition beanDefinition : beanMap.values()) {
