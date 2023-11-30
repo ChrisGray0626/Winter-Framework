@@ -1,4 +1,4 @@
-package pers.chris;
+package pers.chris.core;
 
 import pers.chris.util.BeanUtil;
 

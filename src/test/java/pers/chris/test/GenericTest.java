@@ -1,3 +1,5 @@
+package pers.chris.test;
+
 import pers.chris.core.annotation.Resource;
 import pers.chris.sample.UserController;
 import pers.chris.util.ReflectUtil;

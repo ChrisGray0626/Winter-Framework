@@ -1,4 +1,4 @@
-package pers.chris.sample.base;
+package pers.chris.test.genericinject;
 
 /**
  * @Description

@@ -1,24 +1,16 @@
-package pers.chris.sample;
+package pers.chris.test.inject;
 
 import pers.chris.core.annotation.Component;
-import pers.chris.core.annotation.Resource;
 import pers.chris.util.PrintUtil;
 
 /**
  * @Description
  * @Author Chris
- * @Date 2023/5/20
+ * @Date 2023/11/30
  */
 @Component
-public class B {
-
-    @Resource
-    private A a;
-
-    public void test() {
-        a.print();
-    }
-
+public class BeanImpl implements IBean {
+    @Override
     public void print() {
         PrintUtil.printClassName(this);
     }

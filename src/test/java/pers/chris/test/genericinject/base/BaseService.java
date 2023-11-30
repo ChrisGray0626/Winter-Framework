@@ -1,4 +1,4 @@
-package pers.chris.sample.base;
+package pers.chris.test.genericinject.base;
 
 import pers.chris.core.annotation.Resource;
 import pers.chris.util.PrintUtil;
@@ -8,13 +8,13 @@ import pers.chris.util.PrintUtil;
  * @Author Chris
  * @Date 2023/5/18
  */
-public abstract class BaseDao<Entity extends BaseEntity> {
+public abstract class BaseService<Entity extends BaseEntity, Dao extends BaseDao<Entity>> {
 
     @Resource
-    private Entity entity;
+    private Dao dao;
 
     public void print() {
-        entity.print();
+        dao.print();
         PrintUtil.printClassName(this);
     }
 }

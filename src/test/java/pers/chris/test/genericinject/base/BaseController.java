@@ -1,4 +1,4 @@
-package pers.chris.sample.base;
+package pers.chris.test.genericinject.base;
 
 import pers.chris.core.annotation.Resource;
 import pers.chris.util.PrintUtil;
@@ -8,7 +8,7 @@ import pers.chris.util.PrintUtil;
  * @Author Chris
  * @Date 2023/5/18
  */
-public class BaseController<Entity extends BaseEntity, Dao extends BaseDao<Entity>, Service extends BaseService<Entity, Dao>> {
+public abstract class BaseController<Entity extends BaseEntity, Dao extends BaseDao<Entity>, Service extends BaseService<Entity, Dao>> {
 
     @Resource
     private Service service;

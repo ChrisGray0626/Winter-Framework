@@ -1,6 +1,5 @@
 package pers.chris.core;
 
-import pers.chris.BeanDefinition;
 import pers.chris.core.annotation.Bean;
 import pers.chris.core.annotation.Component;
 import pers.chris.core.annotation.Configuration;
