@@ -18,7 +18,7 @@ public class ApplicationExecutor {
     public void run() {
         for (Class<? extends Applicable> application : applicationClasses) {
             ApplicationContext applicationContext = new ApplicationContext(application);
-            Applicable applicationBean = (Applicable) applicationContext.getBean(application.getName());
+            Applicable applicationBean = (Applicable) applicationContext.getBean(application.getSimpleName());
             applicationBean.run();
         }
     }

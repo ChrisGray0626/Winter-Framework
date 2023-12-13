@@ -6,11 +6,12 @@
     <parent>
         <groupId>pers.chris</groupId>
         <artifactId>winter-framework</artifactId>
-        <version>1.1</version>
+        <version>0.3</version>
     </parent>
 
     <groupId>pers.chris.util</groupId>
     <artifactId>winter-util</artifactId>
+    <version>${framework.version}</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

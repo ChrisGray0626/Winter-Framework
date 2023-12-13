@@ -45,6 +45,7 @@ public class ApplicationContext {
         this.createBeanDefinition(beanNames);
         this.createConfigurationBean();
         this.createBeanPostProcessor();
+        this.createBeanInvocationHandler();
         this.createNormalBean();
         this.injectBean();
         this.initBean();
@@ -73,6 +74,7 @@ public class ApplicationContext {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+            beanName = clazz.getSimpleName();
             if (ClassUtil.isAnnotationPresent(clazz, Component.class)) {
                 BeanDefinition beanDefinition = new BeanDefinition(beanName, clazz);
                 this.addBeanDefinition(beanDefinition);
@@ -113,6 +115,11 @@ public class ApplicationContext {
                     this.createBean(beanDefinition);
                     beanPostProcessors.add((BeanPostProcessor) beanDefinition.getInstance());
                 });
+    }
+
+    private void createBeanInvocationHandler() {
+        this.beanMap.values().stream().filter(BeanUtil::isBeanInvocationHandlerDefinition)
+                .forEach(this::createBean);
     }
 
     private void createNormalBean() {

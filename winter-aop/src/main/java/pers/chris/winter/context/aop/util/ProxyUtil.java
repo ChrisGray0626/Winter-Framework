@@ -19,12 +19,12 @@ import java.lang.reflect.InvocationHandler;
  */
 public class ProxyUtil {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyUtil.class);
 
     private ProxyUtil() {
     }
 
-    public <T> T createProxy(T originalBean, String handlerName) {
+    public static <T> T createProxy(T originalBean, String handlerName) {
         ApplicationContext applicationContext = ApplicationContextUtil.getRequiredInstance();
         InvocationHandler handler = (InvocationHandler) applicationContext.getBean(handlerName);
         Class<?> originalBeanClass = originalBean.getClass();

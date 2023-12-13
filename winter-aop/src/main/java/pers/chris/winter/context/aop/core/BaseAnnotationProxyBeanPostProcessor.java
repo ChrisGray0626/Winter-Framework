@@ -1,6 +1,7 @@
 package pers.chris.winter.context.aop.core;
 
 import pers.chris.winter.context.aop.exception.AopConfigurationException;
+import pers.chris.winter.context.aop.util.ProxyUtil;
 import pers.chris.winter.context.core.BeanPostProcessor;
 
 import java.lang.annotation.Annotation;
@@ -20,17 +21,20 @@ public abstract class BaseAnnotationProxyBeanPostProcessor<A extends Annotation>
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
         Class<?> beanClass = bean.getClass();
         Class<A> annotationClass = this.getAnnotationClass();
+        // TODO 注解继承？
         A annotation = beanClass.getAnnotation(annotationClass);
-        if (annotation != null) {
-            String handlerName;
-            try {
-                handlerName = (String) annotation.annotationType().getMethod("value").invoke(annotation);
-            } catch (ReflectiveOperationException e) {
-                throw new AopConfigurationException(String.format("@%s must have value() returned String type.", annotationClass.getSimpleName()), e);
-            }
+        if (annotation == null) {
+            return bean;
         }
+        String handlerName;
+        try {
+            handlerName = (String) annotation.annotationType().getMethod(VALUE_METHOD_NAME).invoke(annotation);
+        } catch (ReflectiveOperationException e) {
+            throw new AopConfigurationException(String.format("@%s must have value() returned String type.", annotationClass.getSimpleName()), e);
+        }
+        Object proxiedBean = ProxyUtil.createProxy(bean, handlerName);
 
-
+        return proxiedBean;
     }
 
     @Override

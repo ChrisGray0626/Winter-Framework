@@ -8,6 +8,7 @@ import pers.chris.winter.context.exception.MultipleConstructorFoundException;
 import pers.chris.winter.context.exception.NoConstructorFoundException;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
@@ -46,5 +47,9 @@ public class BeanUtil {
 
     public static boolean isBeanPostProcessorDefinition(BeanDefinition beanDefinition) {
         return BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass());
+    }
+
+    public static boolean isBeanInvocationHandlerDefinition(BeanDefinition beanDefinition) {
+        return InvocationHandler.class.isAssignableFrom(beanDefinition.getBeanClass());
     }
 }
