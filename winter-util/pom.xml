@@ -9,8 +9,8 @@
         <version>1.1</version>
     </parent>
 
-    <groupId>pers.chris.context</groupId>
-    <artifactId>winter-context</artifactId>
+    <groupId>pers.chris.util</groupId>
+    <artifactId>winter-util</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -18,12 +18,4 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>pers.chris.util</groupId>
-            <artifactId>winter-util</artifactId>
-            <version>1.1</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 </project>

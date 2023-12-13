@@ -6,10 +6,12 @@
 
     <groupId>pers.chris</groupId>
     <artifactId>winter-framework</artifactId>
-    <version>1.1</version>
+    <version>0.3</version>
     <packaging>pom</packaging>
     <modules>
         <module>winter-context</module>
+        <module>winter-aop</module>
+        <module>winter-util</module>
     </modules>
 
     <properties>
