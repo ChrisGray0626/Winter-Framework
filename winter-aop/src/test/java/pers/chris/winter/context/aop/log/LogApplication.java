@@ -1,4 +1,4 @@
-package pers.chris.winter.context.aop;
+package pers.chris.winter.context.aop.log;
 
 import pers.chris.winter.context.core.Applicable;
 import pers.chris.winter.context.core.ApplicationExecutor;
@@ -10,19 +10,19 @@ import pers.chris.winter.context.core.annotation.Resource;
  * @Author Chris
  * @Date 2023/12/13
  */
-@Configuration
-public class AnnoApplication implements Applicable {
+@Configuration(basePackages = "pers.chris.winter.context.aop")
+public class LogApplication implements Applicable {
 
     @Resource
-    private A a;
+    private LoggedBean loggedBean;
 
     public static void main(String[] args) {
-        new ApplicationExecutor().application(AnnoApplication.class).run();
+        new ApplicationExecutor().application(LogApplication.class).run();
     }
 
     @Override
     public void run() {
-        a.test();
-        a.test2();
+        loggedBean.func1();
+        loggedBean.func2();
     }
 }

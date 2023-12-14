@@ -1,4 +1,4 @@
-package pers.chris.winter.context.aop;
+package pers.chris.winter.context.aop.log;
 
 import pers.chris.winter.context.aop.annotation.Around;
 import pers.chris.winter.context.core.annotation.Component;
@@ -10,11 +10,12 @@ import pers.chris.winter.context.core.annotation.Component;
  */
 @Around("LogInvocationHandler")
 @Component
-public class A {
+public class LoggedBean {
 
-    public void test() {
+    public void func1() {
     }
 
-    public void test2() {
+    @Log
+    public void func2() {
     }
 }

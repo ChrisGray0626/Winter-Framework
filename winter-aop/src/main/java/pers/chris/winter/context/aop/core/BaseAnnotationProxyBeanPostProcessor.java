@@ -21,7 +21,6 @@ public abstract class BaseAnnotationProxyBeanPostProcessor<A extends Annotation>
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
         Class<?> beanClass = bean.getClass();
         Class<A> annotationClass = this.getAnnotationClass();
-        // TODO 注解继承？
         A annotation = beanClass.getAnnotation(annotationClass);
         if (annotation == null) {
             return bean;
@@ -32,9 +31,8 @@ public abstract class BaseAnnotationProxyBeanPostProcessor<A extends Annotation>
         } catch (ReflectiveOperationException e) {
             throw new AopConfigurationException(String.format("@%s must have value() returned String type.", annotationClass.getSimpleName()), e);
         }
-        Object proxiedBean = ProxyUtil.createProxy(bean, handlerName);
 
-        return proxiedBean;
+        return ProxyUtil.createProxy(bean, handlerName);
     }
 
     @Override

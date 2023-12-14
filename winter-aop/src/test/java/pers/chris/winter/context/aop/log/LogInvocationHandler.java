@@ -1,4 +1,4 @@
-package pers.chris.winter.context.aop;
+package pers.chris.winter.context.aop.log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class LogInvocationHandler implements BeforeInvocationHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogInvocationHandler.class);
 
     @Override
-    public void before(Object proxy, Method method, Object[] args) {
+    public void doBefore(Object proxy, Method method, Object[] args) {
         LOGGER.info("Method {} is invoked.", method.getName());
     }
 }

@@ -16,11 +16,11 @@ public class AnnotationUtil {
         return isAnnotationPresent(clazz, targetAnnotationClass, true);
     }
 
-    public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> targetAnnotationClass, boolean checkSuperClass) {
+    public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> targetAnnotationClass, boolean checkSuperAnnotation) {
         if (clazz.isAnnotationPresent(targetAnnotationClass)) {
             return true;
         }
-        if (checkSuperClass) {
+        if (checkSuperAnnotation) {
             for (Annotation annotation : clazz.getAnnotations()) {
                 Class<? extends Annotation> annotationClass = annotation.annotationType();
                 if (isMetaAnnotation(annotationClass)) {
@@ -38,11 +38,11 @@ public class AnnotationUtil {
         return getAnnotation(clazz, targetAnnotationClass, true);
     }
 
-    public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> targetAnnotationClass, boolean checkSuperClass) {
+    public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> targetAnnotationClass, boolean checkSuperAnnotation) {
         if (isAnnotationPresent(clazz, targetAnnotationClass, false)) {
             return clazz.getAnnotation(targetAnnotationClass);
         }
-        if (checkSuperClass) {
+        if (checkSuperAnnotation) {
             for (Annotation annotation : clazz.getAnnotations()) {
                 Class<? extends Annotation> annotationClass = annotation.annotationType();
                 if (isMetaAnnotation(annotationClass)) {

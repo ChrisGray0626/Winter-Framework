@@ -10,11 +10,11 @@ import java.lang.reflect.Method;
  */
 public interface BeforeInvocationHandlerAdapter extends InvocationHandler {
 
-    void before(Object proxy, Method method, Object[] args);
+    void doBefore(Object proxy, Method method, Object[] args);
 
     @Override
     default Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        this.before(proxy, method, args);
+        this.doBefore(proxy, method, args);
         return method.invoke(proxy, args);
     }
 }
