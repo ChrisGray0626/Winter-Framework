@@ -2,7 +2,6 @@ package pers.chris.winter.context.winter.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -74,22 +73,5 @@ public class ClassUtil {
                 classes.add(className);
             }
         }
-    }
-
-    public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        if (clazz.isAnnotationPresent(annotationClass)) {
-            return true;
-        }
-        for (Annotation annotation : clazz.getAnnotations()) {
-            Class<? extends Annotation> annotationType = annotation.annotationType();
-            // Exclude meta annotations
-            if (annotationType.getPackageName().equals("java.lang.annotation")) {
-                continue;
-            }
-            if (isAnnotationPresent(annotationType, annotationClass)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

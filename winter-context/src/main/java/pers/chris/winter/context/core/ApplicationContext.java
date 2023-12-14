@@ -11,6 +11,7 @@ import pers.chris.winter.context.exception.MultipleBeanFoundException;
 import pers.chris.winter.context.util.ApplicationContextUtil;
 import pers.chris.winter.context.util.BeanUtil;
 import pers.chris.winter.context.util.StringUtil;
+import pers.chris.winter.context.winter.util.AnnotationUtil;
 import pers.chris.winter.context.winter.util.ClassUtil;
 import pers.chris.winter.context.winter.util.ReflectUtil;
 
@@ -53,7 +54,7 @@ public class ApplicationContext {
 
     private String[] extractBasePackage(Class<?> configurationClass) {
         String[] packageNames;
-        if (ClassUtil.isAnnotationPresent(configurationClass, Configuration.class)) {
+        if (AnnotationUtil.isAnnotationPresent(configurationClass, Configuration.class)) {
             Configuration configuration = configurationClass.getAnnotation(Configuration.class);
             packageNames = configuration.basePackages();
             // If no base package is specified, use the package of the application class
@@ -75,10 +76,10 @@ public class ApplicationContext {
                 throw new RuntimeException(e);
             }
             beanName = clazz.getSimpleName();
-            if (ClassUtil.isAnnotationPresent(clazz, Component.class)) {
+            if (AnnotationUtil.isAnnotationPresent(clazz, Component.class)) {
                 BeanDefinition beanDefinition = new BeanDefinition(beanName, clazz);
                 this.addBeanDefinition(beanDefinition);
-                if (ClassUtil.isAnnotationPresent(clazz, Configuration.class)) {
+                if (AnnotationUtil.isAnnotationPresent(clazz, Configuration.class)) {
                     this.scanFactoryMethod(beanName, clazz);
                 }
             }
