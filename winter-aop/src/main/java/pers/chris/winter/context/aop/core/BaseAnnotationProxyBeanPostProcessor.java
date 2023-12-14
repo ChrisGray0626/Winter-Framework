@@ -3,6 +3,7 @@ package pers.chris.winter.context.aop.core;
 import pers.chris.winter.context.aop.exception.AopConfigurationException;
 import pers.chris.winter.context.aop.util.ProxyUtil;
 import pers.chris.winter.context.core.BeanPostProcessor;
+import pers.chris.winter.context.winter.util.AnnotationUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
@@ -21,10 +22,10 @@ public abstract class BaseAnnotationProxyBeanPostProcessor<A extends Annotation>
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
         Class<?> beanClass = bean.getClass();
         Class<A> annotationClass = this.getAnnotationClass();
-        A annotation = beanClass.getAnnotation(annotationClass);
-        if (annotation == null) {
+        if (!AnnotationUtil.isAnnotationPresent(beanClass, annotationClass)) {
             return bean;
         }
+        A annotation = AnnotationUtil.getAnnotation(beanClass, annotationClass);
         String handlerName;
         try {
             handlerName = (String) annotation.annotationType().getMethod(VALUE_METHOD_NAME).invoke(annotation);

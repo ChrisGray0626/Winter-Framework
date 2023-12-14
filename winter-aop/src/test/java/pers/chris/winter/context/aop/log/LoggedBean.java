@@ -15,7 +15,7 @@ public class LoggedBean {
     public void func1() {
     }
 
-    @Log
+    @LogPointcut
     public void func2() {
     }
 }

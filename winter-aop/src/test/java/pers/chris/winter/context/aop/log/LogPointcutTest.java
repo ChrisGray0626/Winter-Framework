@@ -8,7 +8,7 @@ import pers.chris.winter.context.core.ApplicationContext;
  * @Author Chris
  * @Date 2023/12/14
  */
-public class LogTest {
+public class LogPointcutTest {
 
     @Test
     public void test() {
