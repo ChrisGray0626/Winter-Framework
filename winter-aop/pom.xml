@@ -6,7 +6,7 @@
     <parent>
         <groupId>pers.chris</groupId>
         <artifactId>winter-framework</artifactId>
-        <version>0.3</version>
+        <version>${revision}</version>
     </parent>
 
     <groupId>pers.chris.aop</groupId>

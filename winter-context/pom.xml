@@ -11,7 +11,7 @@
 
     <groupId>pers.chris.context</groupId>
     <artifactId>winter-context</artifactId>
-    <version>${framework.version}</version>
+    <version>${revision}</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
