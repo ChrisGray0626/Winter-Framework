@@ -9,8 +9,8 @@
         <version>${revision}</version>
     </parent>
 
-    <groupId>pers.chris.context</groupId>
-    <artifactId>winter-context</artifactId>
+    <groupId>pers.chris.util</groupId>
+    <artifactId>winter-util</artifactId>
     <version>${revision}</version>
 
     <properties>
@@ -19,12 +19,4 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>pers.chris.util</groupId>
-            <artifactId>winter-util</artifactId>
-            <version>${revision}</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 </project>

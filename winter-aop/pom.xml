@@ -9,20 +9,31 @@
         <version>${revision}</version>
     </parent>
 
-    <groupId>pers.chris.context</groupId>
-    <artifactId>winter-context</artifactId>
+    <groupId>pers.chris.aop</groupId>
+    <artifactId>winter-aop</artifactId>
     <version>${revision}</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <byte-buddy.version>1.14.10</byte-buddy.version>
     </properties>
-
     <dependencies>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+        </dependency>
         <dependency>
             <groupId>pers.chris.util</groupId>
             <artifactId>winter-util</artifactId>
+            <version>${revision}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>pers.chris.context</groupId>
+            <artifactId>winter-context</artifactId>
             <version>${revision}</version>
             <scope>compile</scope>
         </dependency>
