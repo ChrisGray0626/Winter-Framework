@@ -6,7 +6,7 @@
     <parent>
         <groupId>pers.chris</groupId>
         <artifactId>winter-framework</artifactId>
-        <version>0.3</version>
+        <version>${revision}</version>
     </parent>
 
     <groupId>pers.chris.context</groupId>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>pers.chris.util</groupId>
             <artifactId>winter-util</artifactId>
-            <version>${framework.version}</version>
+            <version>${revision}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
